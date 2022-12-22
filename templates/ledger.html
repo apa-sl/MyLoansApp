@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Loans ledger
+{% endblock %}
+
+{% block main %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Loan name</th>
+                <th>Agreement ID</th>
+                <th>Vendor</th>
+                <th>Total amount</th>
+                <th>Outstanding amount</th>
+                <th>Start date</th>
+                <th>End date</th>
+            </tr>
+            </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>
+                    {{ loan.name }}
+                </td>
+                <td>
+                    {% if loan.agreement_id != None %}
+                        {{ loan.agreement_id }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    {{ loan.vendor }}
+                </td>
+                <td>
+                    {{ loan.loan_total_amount }}
+                </td>
+                <td>
+                    {{ loan.loan_outstanding_amount }}
+                </td>
+                <td>
+                    {{ loan.start_date  }}
+                </td>
+                <td>
+                    {{ loan.end_date  }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

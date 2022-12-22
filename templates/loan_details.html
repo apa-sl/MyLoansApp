@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block main %}
+<h1>Loan Details</h1>
+<div>
+<p>Name: {{ loan.name }}</p>
+<p>Vendor: {{ loan.vendor }}</p>
+{% if loan.agreement_id != None %}
+<p>Agreement: {{ loan.agreement_id }}</p>
+{% endif %}
+<p>Total amount: {{ loan.loan_amount_total }}</p>
+<p>Outstanding amount: {{ loan.loan_amount_outstanding }} ({{(loan.loan_amount_outstanding/loan.loan_amount_total*100)|round(2, 'common') }}%)</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th span="3">Installments</th>
+        </tr>
+        <tr>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for installment in loan.installments %}
+        <tr>
+            <td>
+                {{ installment.amount }}
+            </td>
+            <td>
+                {{ installment.payment_date }}
+            </td>
+            <td>
+                {% if installment.payment_status == 0 %}
+                    Not paid
+                {% else %}
+                    Paid
+                {% endif %}
+            </td>
+            <td>
+                
+                {% if installment.payment_status == 0 %}
+                    <form action="/installment-edit/{{ loan.id }}/{{ installment.id }}/pay" method="post">
+                        <button>Mark Paid</button>
+                    </form>
+                {% else %}
+                    <form action="/installment-edit/{{ loan.id }}/{{ installment.id }}/undopay" method="post">
+                        <button>Mark Unpaid</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock %}

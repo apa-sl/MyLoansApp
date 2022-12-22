@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add Loan
+{% endblock %}
+
+{% block main %}
+<!-- TODO add patterns to inputs such as pattern="[A-Za-z]{1,5} -->
+<h1>Add Loan</h1>    
+<form action="/add-loan" method="post">
+        <div class="mb-3">
+            <label for="loan_name">Loan name</label>
+            <input id="loan_name" name="loan_name" placeholder="Purpose of the loan">
+            
+            <label for="vendor">Vendor</label>
+            <select id="vendor" name="vendor">
+                <option hidden disabled selected value>Select vendor</option>
+                {% for vendor in vendors %}
+                <option value="{{ vendor.id }}">{{ vendor.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <label for="id_needed">Agreement ID needed?</label>
+                <input id="id_needed" name="id_needed" type="checkbox">
+                <label for="agreement_id">Agreement ID</label>
+                <input id="agreement_id" name="agreement_id" placeholder="Agreement Number or wiretransfer title">
+            
+            <label for="installment_amount">Installment amount</label> 
+            <input id="installment_amount" name="installment_amount" placeholder="Installment amount">
+            <label for="installments_count">No of installments</label>
+            <input id="installments_count" name="installments_count"> <!-- TODO adding +/- buttons with bootstrap -->
+            
+            <label for="last_installment_diff">Is the last installment different?</label>
+            <input id="last_installment_diff" name="last_installment_diff" type="checkbox">   
+                <label for="last_installment_amount">Last installment amount</label>
+                <input id="last_installment_amount" name="last_installment_amount">
+
+            <label for="start_date">Loan start date</label>
+            <input id="start_date" name="start_date" placeholder="Enter date">
+    
+            <label for="due_day">Due day each month</label>
+            <input id="due_day" name="due_day" placeholder="1-31">
+        </div>
+        <button class="btn btn-primary" type="submit">Add Loan</button>
+    </form>
+{% endblock %}
