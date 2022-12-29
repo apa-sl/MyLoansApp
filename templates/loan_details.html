@@ -12,8 +12,8 @@
 {% if loan.agreement_id != None %}
 <p>Agreement: {{ loan.agreement_id }}</p>
 {% endif %}
-<p>Total amount: {{ loan.loan_amount_total }}</p>
-<p>Outstanding amount: {{ loan.loan_amount_outstanding }} ({{(loan.loan_amount_outstanding/loan.loan_amount_total*100)|round(2, 'common') }}%)</p>
+<p>Total amount: {{ loan.amount_total }}</p>
+<p>Outstanding amount: {{ loan.amount_outstanding }} ({{(loan.amount_outstanding/loan.amount_total*100)|round(2, 'common') }}%)</p>
 <table class="table">
     <thead>
         <tr>
@@ -39,18 +39,18 @@
                 {% if installment.payment_status == 0 %}
                     Not paid
                 {% else %}
-                    Paid
+                    <b>Paid</b>
                 {% endif %}
             </td>
             <td>
                 
                 {% if installment.payment_status == 0 %}
                     <form action="/installment-edit/{{ loan.id }}/{{ installment.id }}/pay" method="post">
-                        <button>Mark Paid</button>
+                        <button class="btn btn-primary">Mark Paid</button>
                     </form>
                 {% else %}
                     <form action="/installment-edit/{{ loan.id }}/{{ installment.id }}/undopay" method="post">
-                        <button>Mark Unpaid</button>
+                        <button class="btn btn-outline-primary">Mark Unpaid</button>
                     </form>
                 {% endif %}
             </td>

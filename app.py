@@ -1,6 +1,8 @@
 # import os
 import mysql.connector
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
+import configparser
+
+from flask import Flask, flash, jsonify, redirect, url_for, render_template, request, session
 from decimal import Decimal
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -21,12 +23,19 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Connect to mysql database
+config = configparser.ConfigParser()
+## read the configuration file
+config.read("config.ini")
+## get all the sections of the config file
+config.sections()
+
 db = mysql.connector.connect(
-    host="127.0.0.1",
-    user="ENTER_USER_NAME",
-    password="ENTER_PASSWORD",
-    database="ENTER_DB_NAME"
+    host = config.get("mysql", "host"),
+    user = config["mysql"]["user"],
+    password = config.get("mysql", "password"),
+    database = config.get("mysql", "database")
 )
+
 # initialize a cursor that is always catching all rows from the query and as dicts (not as tuples)
 cursor = db.cursor(buffered=True, dictionary=True)
 
@@ -156,26 +165,26 @@ def index():
         return render_template("index.html")
     else:
         # get loans in progress (count & amount)
-        query = ("SELECT COUNT(id) AS id FROM loans WHERE loan_amount_outstanding != 0 AND user_id = %s")
+        query = ("SELECT COUNT(id) AS id FROM loans WHERE amount_outstanding != 0 AND user_id = %s")
         data = (session["user_id"],)
         cursor.execute(query, data)
         result = cursor.fetchone()
         loans_inpro_count = result["id"]
 
-        query = ("SELECT SUM(loan_amount_outstanding) AS sum FROM loans WHERE loan_amount_outstanding != 0 AND user_id = %s")
+        query = ("SELECT SUM(amount_outstanding) AS sum FROM loans WHERE amount_outstanding != 0 AND user_id = %s")
         data = (session["user_id"],)
         cursor.execute(query, data)
         result = cursor.fetchone()
         loans_inpro_amount = result["sum"]
 
         # get closed loans (count & amount)
-        query = ("SELECT COUNT(id) AS id FROM loans WHERE loan_amount_outstanding = 0 AND user_id = %s")
+        query = ("SELECT COUNT(id) AS id FROM loans WHERE amount_outstanding = 0 AND user_id = %s")
         data = (session["user_id"],)
         cursor.execute(query, data)
         result = cursor.fetchone()
         loans_closed_count = result["id"]
 
-        query = ("SELECT SUM(loan_amount_total) AS sum FROM loans WHERE loan_amount_outstanding = 0 AND user_id = %s")
+        query = ("SELECT SUM(amount_total) AS sum FROM loans WHERE amount_outstanding = 0 AND user_id = %s")
         data = (session["user_id"],)
         cursor.execute(query, data)
         result = cursor.fetchone()
@@ -204,6 +213,32 @@ def index():
             loans_soon_total += loan["installment_amount"]
         return render_template("index.html", loans_inpro_count = loans_inpro_count, loans_inpro_amount = loans_inpro_amount, loans_closed_count = loans_closed_count, loans_closed_amount = loans_closed_amount, month_current = loans_now, month_current_total = loans_now_total, month_next = loans_soon, month_next_total = loans_soon_total)
 
+@app.route("/ledger", methods=["GET", "POST"])
+@login_required
+def ledger():
+    # set up filtering & sorting parameters
+    session["loans_list"] = {}
+    session["loans_list"]["status"] = request.args.get("status") # TODO implementing proper SQL query constructor with WHERE IN clause for the status column
+    session["loans_list"]["sort"] = request.args.get("sort") # no parameter, value = None
+    session["loans_list"]["date_start"] = request.args.get("start")
+    session["loans_list"]["date_end"] = request.args.get("end")
+    if session["loans_list"]["sort"] == None:
+        session["loans_list"]["sort"] = "ASC"
+    if session["loans_list"]["date_start"] == None:
+        session["loans_list"]["date_start"] = date.today() - relativedelta(months=12)
+    else:
+        session["loans_list"]["date_start"] = datetime.strptime(date_start, '%Y/%m/%d').date()
+    if session["loans_list"]["date_end"] == None:
+        session["loans_list"]["date_end"] = date.today() + relativedelta(months=12)
+    else:
+        session["loans_list"]["date_end"] = datetime.strptime(date_start, '%Y/%m/%d').date()
+    
+    # get user's loans properly filtered & sorted  
+    query = ("SELECT loans.id AS id, loans.name AS name, loans.agreement_id AS agreement_id, vendors.name AS vendor, loans.start_date AS start_date, loans.end_date AS end_date, loans.amount_total AS amount_total, loans.amount_outstanding AS amount_outstanding FROM loans LEFT JOIN vendors ON loans.vendor_id = vendors.id WHERE user_id = %s AND start_date >= %s AND end_date <= %s ORDER BY start_date ASC")
+    data = (session["user_id"], session["loans_list"]["date_start"], session["loans_list"]["date_end"])
+    cursor.execute(query, data)
+    loans = cursor.fetchall()
+    return render_template("ledger.html", loans=loans)
 
 @app.route("/add-loan", methods=["GET", "POST"])
 @login_required
@@ -215,49 +250,60 @@ def add_loan():
         # get loan data from the form
         loan = {}
         loan["name"] = request.form.get("loan_name")
-        loan["vendor_id"] = int(request.form.get("vendor"))
+        loan["vendor_id"] = request.form.get("vendor")
         if "id_needed" in request.form:
             loan["id_needed"] = True
             loan["agreement_id"] = request.form.get("agreement_id")
         else:
             loan["id_needed"] = False
             loan["agreement_id"]  = None
-        loan["start_date"] = datetime.strptime(request.form.get("start_date"), '%Y-%m-%d')
-        loan["installment_amount"] = Decimal(request.form.get("installment_amount"))
-        loan["installments_count"] = int(float(request.form.get("installments_count")))
-        loan["end_date"] = loan["start_date"] + relativedelta(months=+loan["installments_count"]
+        loan["start_date"] = request.form.get("start_date")
+        loan["installment_amount"] = request.form.get("installment_amount")
+        loan["installments_count"] = request.form.get("installments_count")
         if "last_installment_diff" in request.form:
             loan["last_installment_diff"] = True
             loan["last_installment_amount"] = Decimal(request.form.get("last_installment_amount"))
         else:
             loan["last_installment_diff"] = False
-        loan["due_day"] = int(float(request.form.get("due_day")))
+        loan["due_day"] = request.form.get("due_day")
 
         # validate loan data from the form
         if not loan["name"]:
-            print("Provide proper name")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide proper loan name", 400)
+
         if not loan["vendor_id"]:
-            print("Select proper vendor")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Select proper vendor", 400)
+
+        else:
+            loan["vendor_id"] = int(loan["vendor_id"])
+
         if loan["id_needed"] == True and not loan["agreement_id"]:
-             print("Provide agreement ID")
-             return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide agreement ID", 400)
+
         if not loan["installment_amount"]:
-            print("Provide proper installment amount")
-            return render_template("add-loan.html", vendors=vendors)
-        if not loan["start_date"]:
-            print("Provide proper start date")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide proper installment amount", 400)
+
+        else:
+            loan["installment_amount"] = Decimal(loan["installment_amount"])
+
         if not loan["installments_count"]:
-            print("Provide proper start date")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide number of installments", 400)
+        else:
+            loan["installments_count"] = int(float(loan["installments_count"]))
+            
+        if not loan["start_date"]:
+            return apology("Please provide proper 1st payment date", 400)
+        else:
+            loan["start_date"] = datetime.strptime(loan["start_date"], '%Y-%m-%d')
+            loan["end_date"] = loan["start_date"] + relativedelta(months=+loan["installments_count"])
+
         if loan["last_installment_diff"] == True and not loan["last_installment_amount"]:
-            print("Provide proper last installment amount")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide proper last installment amount", 400)
+
         if not loan["due_day"]:
-            print("Provide proper due day")
-            return render_template("add-loan.html", vendors=vendors)
+            return apology("Please provide proper due day", 400)
+        else:
+            loan["due_day"] = int(float(loan["due_day"]))
         # TODO: , add loan to the DB, inform user that it has been added.
 
         # calculate loan total amount
@@ -271,8 +317,8 @@ def add_loan():
         # store loan in the DB
         try:
             # add loan to the loans table & get id of the newly created loan
-            query = ("INSERT INTO loans (name, user_id, vendor_id, start_date, end_date, agreement_id, due_day, loan_amount_total, loan_amount_outstanding) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
-            data = (loan["name"], session["user_id"], loan["vendor_id"], loan["start_date"], loan["end_date"], loan["agreement_id"], loan["due_day"], loan["amount_total"], loan["amount_total"])
+            query = ("INSERT INTO loans (name, user_id, vendor_id, start_date, end_date, agreement_id, due_day, amount_total, amount_outstanding, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data = (loan["name"], session["user_id"], loan["vendor_id"], loan["start_date"], loan["end_date"], loan["agreement_id"], loan["due_day"], loan["amount_total"], loan["amount_total"], 1)
             cursor.execute(query, data)
 
             # get the id of newly inserted loan into the db
@@ -288,8 +334,7 @@ def add_loan():
                 cursor.execute(query, data)
             # add regular installments
             for i in range(installments_to_add):
-                installment_payment_date = loan["start_date"] + relativedelta(months=+(i+1))
-                print(installment_payment_date)
+                installment_payment_date = loan["start_date"] + relativedelta(months=+(i))
                 query = ("INSERT INTO installments (loan_id, amount, payment_date) VALUES (%s, %s, %s)")
                 data = (loan["id"], loan["installment_amount"], installment_payment_date)
                 cursor.execute(query, data)
@@ -302,19 +347,19 @@ def add_loan():
             db.rollback()
             print("Something went wrong with SQL: {}".format(err))
 
-        return render_template("index.html")
-        #return render_template("add-loan.html")
+        return redirect("/")
     else:
         return render_template("add-loan.html", vendors=vendors)
-        
+
+
 @app.route("/loan-details/<int:loan_id>", methods=["GET", "POST"])
 @login_required
 def loan_details(loan_id):
-    query = ("SELECT loans.id AS id, loans.name AS name, vendors.name AS vendor, agreement_id, loan_amount_total, loan_amount_outstanding FROM loans JOIN vendors ON loans.vendor_id = vendors.id WHERE loans.id = %s")
+    query = ("SELECT loans.id AS id, loans.name AS name, vendors.name AS vendor, agreement_id, amount_total, amount_outstanding FROM loans JOIN vendors ON loans.vendor_id = vendors.id WHERE loans.id = %s")
     data = (loan_id,)
     cursor.execute(query, data)
     session["loan"] = cursor.fetchone() # we should get a 1 dictionary with details requested in the SQL query
-    query = ("SELECT id, amount, payment_date, payment_status FROM installments WHERE loan_id = %s")
+    query = ("SELECT id, amount, payment_date, payment_status FROM installments WHERE loan_id = %s ORDER BY payment_date ASC")
     data = (loan_id,)
     cursor.execute(query, data)
     session["loan"]["installments"] = cursor.fetchall()
@@ -322,17 +367,17 @@ def loan_details(loan_id):
     print(session["loan"])
     return render_template("loan_details.html", loan=session["loan"])
 
+
 @app.route("/installment-edit/<int:loan_id>/<int:installment_id>/<string:action>", methods=["GET", "POST"])
 @login_required
 def installment_edit(loan_id, installment_id, action):
     match action:
         case "pay":
-            status = 1
+            payment_status = 1
             try:
                 # update installment status in db
-                print(status)
                 query = ("UPDATE installments SET payment_status = '%s' WHERE id = %s")
-                data = (status, installment_id)
+                data = (payment_status, installment_id)
                 cursor.execute(query, data)
 
                 # update loan outstanding amount in db
@@ -342,33 +387,39 @@ def installment_edit(loan_id, installment_id, action):
                 cursor.execute(query, data)
                 installment_amount = cursor.fetchone()
                 ## get current loan amount outstanding and decrease it by paid installment amount
-                query = ("SELECT loan_amount_outstanding FROM loans WHERE id = %s")
+                query = ("SELECT amount_total, amount_outstanding FROM loans WHERE id = %s")
                 data = (loan_id,)
                 cursor.execute(query, data)
                 result = cursor.fetchone()
-                loan_amount_outstanding = result["loan_amount_outstanding"] - installment_amount["amount"]
-                ## update loan amount outstanding in the DB
-                query = ("UPDATE loans SET loan_amount_outstanding = %s WHERE id = %s")
-                data = (loan_amount_outstanding, loan_id)
-                cursor.execute(query, data)
+                loan_amount_outstanding = result["amount_outstanding"] - installment_amount["amount"]
+                ## calculate loan status new (1), in progress (2), closed (3)
+                if result["amount_total"] == loan_amount_outstanding:
+                    loan_status = 1
+                elif result["amount_total"] > loan_amount_outstanding and loan_amount_outstanding != 0:
+                    loan_status = 2
+                elif loan_amount_outstanding == 0:
+                    loan_status = 3
+                ## update loan amount outstanding & loan status in the DB
+                query = ("UPDATE loans SET amount_outstanding = %s, status = %s WHERE id = %s")
+                data = (loan_amount_outstanding, loan_status, loan_id)
+                cursor.execute(query, data)                    
 
                 # commit changes in the database
                 db.commit()
-                return render_template("loan_details.html", loan=session["loan"])
+                return redirect(url_for("loan_details", loan_id=session["loan"]["id"]))
     
             except mysql.connector.Error as err:
                 # rollback in case of error
                 db.rollback()
                 # return print("Something went wrong with SQL: {}".format(err))
-                return render_template("loan_details.html", loan=session["loan"])
-    
+                return redirect(url_for("loan_details", loan_id=session["loan"]["id"]))
+                
         case "undopay":
-            status = 0
+            payment_status = 0
             try:
                 # update installment status in db
-                print(status)
                 query = ("UPDATE installments SET payment_status = '%s' WHERE id = %s")
-                data = (status, installment_id)
+                data = (payment_status, installment_id)
                 cursor.execute(query, data)
 
                 # update loan outstanding amount in db
@@ -379,29 +430,32 @@ def installment_edit(loan_id, installment_id, action):
                 installment_amount = cursor.fetchone()
                 print(installment_amount)
                 ## get current loan amount outstanding and decrease it by paid installment amount
-                query = ("SELECT loan_amount_outstanding FROM loans WHERE id = %s")
+                query = ("SELECT amount_total, amount_outstanding FROM loans WHERE id = %s")
                 data = (loan_id,)
                 cursor.execute(query, data)
                 result = cursor.fetchone()
-                loan_amount_outstanding = result["loan_amount_outstanding"] + installment_amount["amount"]
+                loan_amount_outstanding = result["amount_outstanding"] + installment_amount["amount"]
+                ## calculate loan status new (1), in progress (2), closed (3)
+                if result["amount_total"] == loan_amount_outstanding:
+                    loan_status = 1
+                elif result["amount_total"] > loan_amount_outstanding and loan_amount_outstanding != 0:
+                    loan_status = 2
+                elif loan_amount_outstanding == 0:
+                    loan_status = 3
                 ## update loan amount outstanding in the DB
-                query = ("UPDATE loans SET loan_amount_outstanding = %s WHERE id = %s")
-                data = (loan_amount_outstanding, loan_id)
+                query = ("UPDATE loans SET amount_outstanding = %s, status = %s WHERE id = %s")
+                data = (loan_amount_outstanding, loan_status, loan_id)
                 cursor.execute(query, data)
 
                 # commit changes in the database
                 db.commit()
-                return render_template("loan_details.html", loan=session["loan"])
+                return redirect(url_for("loan_details", loan_id=session["loan"]["id"]))
     
             except mysql.connector.Error as err:
                 # rollback in case of error
                 db.rollback()
                 # return print("Something went wrong with SQL: {}".format(err))
-                return render_template("loan_details.html", loan=session["loan"])
+                return redirect(url_for("loan_details", loan_id=session["loan"]["id"]))
         
         case _:
-            return redirect("/")
-    
-    
-    # return redirect("/loan-details/loan_id")
-    
+            return redirect("/")    

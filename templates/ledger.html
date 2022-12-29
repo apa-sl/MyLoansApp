@@ -5,49 +5,94 @@
 {% endblock %}
 
 {% block main %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Loan name</th>
-                <th>Agreement ID</th>
-                <th>Vendor</th>
-                <th>Total amount</th>
-                <th>Outstanding amount</th>
-                <th>Start date</th>
-                <th>End date</th>
-            </tr>
-            </thead>
-        <tbody>
-            {% for loan in loans %}
-            <tr>
-                <td>
-                    {{ loan.name }}
-                </td>
-                <td>
-                    {% if loan.agreement_id != None %}
-                        {{ loan.agreement_id }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
-                <td>
-                    {{ loan.vendor }}
-                </td>
-                <td>
-                    {{ loan.loan_total_amount }}
-                </td>
-                <td>
-                    {{ loan.loan_outstanding_amount }}
-                </td>
-                <td>
-                    {{ loan.start_date  }}
-                </td>
-                <td>
-                    {{ loan.end_date  }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Loans Ledger</h1>
+    <div class="col-md-9 mx-auto">
+        <div id="filters" class="col-md-9 mx-auto">
+            <h2>Filters</h2>
+            <form action="/ledger" method="post">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3 form-floating">
+                        <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                            <option selected value="0">All</option>
+                            <option value="1">New</option>
+                            <option value="2">In progress</option>
+                            <option value="3">Closed</option>
+                        </select>
+                        <label for="status">Show loans in  status:</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-3 form-floating">
+                        <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                            <option selected value="1">Ascending</option>
+                            <option value="2">Descending</option>
+                        </select>
+                        <label for="status">Sort:</label>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+        <h2>Loans</h2>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Loan name</th>
+                    <th>Agreement ID</th>
+                    <th>Vendor</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Total amount</th>
+                    <th>Outstanding amount</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr>
+                    <td>
+                        <a href="/loan-details/{{ loan.id }}">{{ loan.name }}</a>
+                    </td>
+                    <td>
+                        {% if loan.agreement_id != None %}
+                            {{ loan.agreement_id }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ loan.vendor }}
+                    </td>
+                    <td>
+                        {{ loan.start_date  }}
+                    </td>
+                    <td>
+                        {{ loan.end_date  }}
+                    </td>
+                    <td>
+                        {{ loan.amount_total }}
+                    </td>
+                    <td>
+                        {{ loan.amount_outstanding }} ({{(loan.amount_outstanding/loan.amount_total*100)|round(2, 'common') }}%)
+                    </td>
+                    <td>
+                        {% if loan.amount_total == loan.amount_outstanding %}
+                            New
+                        {% elif loan.amount_outstanding == 0 %}
+                            Closed
+                        {% else %}
+                            In progress
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8">No loans added yet!</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 {% endblock %}

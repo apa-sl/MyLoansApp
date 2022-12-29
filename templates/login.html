@@ -5,13 +5,34 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/login" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
-        </div>
-        <button class="btn btn-primary" type="submit">Log In</button>
-    </form>
+    <script>  
+        function togglePswdVisibility() {  
+        var getPasword = document.getElementById("password");  
+        if (getPasword.type === "password") {  
+            getPasword.type = "text";  
+        } else {  
+            getPasword.type = "password";  
+        }  
+        }  
+    </script>
+    <div class="col-md-6 col-sm-12 mx-auto">
+        <form action="/login" method="post">
+            <div class="mb-3 form-floating">
+                <input autocomplete="off" autofocus class="form-control" id="username" name="username" placeholder="Enter your email" type="email">
+                <label for="username">Email address</label>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <div class="mb-3 form-floating">
+                    <input class="form-control" id="password" name="password" placeholder="Enter your password" type="password">
+                    <label for="password">Password</label>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-secondary my-auto" type="button" id="showpswd" onclick="togglePswdVisibility()">Show</button>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Log In</button>
+        </form>
+    </div>
 {% endblock %}

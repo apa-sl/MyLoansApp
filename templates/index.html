@@ -6,110 +6,111 @@
 
 {% block main %}
 <h1>Dashboard</h1>
-<div>
-{% if loans_inpro_count == 0 %}
-    <p>Loans in progress: 0, nothing to pay</p>
-{% else %}
-    <p>Loans in progress: {{ loans_inpro_count }}, still to pay: {{ loans_inpro_amount }}</p>
-{% endif %}
-{% if loans_closed_count == 0 %}
-    <p>Closed loans: 0, total paid: 0</p>
-{% else %}
-    <p>Closed loans: {{ loans_closed_count }}, total paid: {{ loans_closed_amount }}</p>
-{% endif %}
+<div class="col-md-9 mx-auto">
+    <div>
+        {% if loans_inpro_count == 0 %}
+            <p>Loans in progress: 0, nothing to pay</p>
+        {% else %}
+            <p>Loans in progress: {{ loans_inpro_count }}, still to pay: {{ loans_inpro_amount }}</p>
+        {% endif %}
+        {% if loans_closed_count == 0 %}
+            <p>Closed loans: 0, total paid: 0</p>
+        {% else %}
+            <p>Closed loans: {{ loans_closed_count }}, total paid: {{ loans_closed_amount }}</p>
+        {% endif %}
+    </div>
+    <table class="table table-striped table-hover col-md-9">
+        <thead>
+            <tr>
+                <th colspan="3">This Month</th>
+            </tr>
+    {% if month_current_total == 0 %}
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">nothing to pay</td>
+            </tr>
+        </tbody>
+    {% else %}
+            <tr>
+                <th>Loan</th>
+                <th>Amount</th>
+                <th>Due date</th>
+            </tr>
+            </thead>
+        <tbody>
+            {% for loan in month_current %}
+            <tr>
+                <td>
+                    <a href="/loan-details/{{ loan.id }}">{{ loan.name }}</a>
+                </td>
+                <td>
+                    {{ loan.installment_amount }}
+                </td>
+                <td>
+                    {{ loan.due}}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    Total to pay
+                </td>
+                <td>
+                    {{ month_current_total }}
+                </td>
+            </tr>
+        </tfoot>
+    {% endif %}
+    </table>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th colspan="3">Next Month</th>
+            </tr>
+    {% if month_next_total == 0 %}
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">nothing to pay</td>
+            </tr>
+        </tbody>
+    {% else %}
+            <tr>
+                <th>Loan</th>
+                <th>Amount</th>
+                <th>Due date</th>
+            </tr>
+            </thead>
+        <tbody>
+            {% for loan in month_next %}
+            <tr>
+                <td>
+                    <a href="/loan-details/{{ loan.id }}">{{ loan.name }}</a>
+                </td>
+                <td>
+                    {{ loan.installment_amount }}
+                </td>
+                <td>
+                    {{ loan.due}}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    Total to pay
+                </td>
+                <td>
+                    {{ month_next_total }}
+                </td>
+            </tr>
+        </tfoot>
+    {% endif %}
+    </table>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th span="3">This Month</th>
-        </tr>
-{% if month_current_total == 0 %}
-    </thead>
-    <tbody>
-        <tr>
-            <td span="3">nothing to pay</td>
-        </tr>
-    </tbody>
-{% else %}
-        <tr>
-            <th>Loan</th>
-            <th>Amount</th>
-            <th>Due date</th>
-        </tr>
-        </thead>
-    <tbody>
-        {% for loan in month_current %}
-        <tr>
-            <td>
-                <a href="/loan-details/{{ loan.id }}">{{ loan.name }}</a>
-            </td>
-            <td>
-                {{ loan.installment_amount }}
-            </td>
-            <td>
-                {{ loan.due}}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tfoot>
-        <tr>
-            <td>
-                Total to pay
-            </td>
-            <td>
-                {{ month_current_total }}
-            </td>
-        </tr>
-    </tfoot>
-{% endif %}
-</table>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th span="3">Next Month</th>
-        </tr>
-{% if month_next_total == 0 %}
-    </thead>
-    <tbody>
-        <tr>
-            <td span="3">nothing to pay</td>
-        </tr>
-    </tbody>
-{% else %}
-        <tr>
-            <th>Loan</th>
-            <th>Amount</th>
-            <th>Due date</th>
-        </tr>
-        </thead>
-    <tbody>
-        {% for loan in month_next %}
-        <tr>
-            <td>
-                <a href="/loan-details/{{ loan.id }}">{{ loan.name }}</a>
-            </td>
-            <td>
-                {{ loan.installment_amount }}
-            </td>
-            <td>
-                {{ loan.due}}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tfoot>
-        <tr>
-            <td>
-                Total to pay
-            </td>
-            <td>
-                {{ month_next_total }}
-            </td>
-        </tr>
-    </tfoot>
-{% endif %}
-</table>
-
 {% endblock %}

@@ -5,19 +5,26 @@
 {% endblock %}
 
 {% block main %}
+<div class="col-md-6 col-sm-12 mx-auto">
     <form action="/register" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="name" name="name" placeholder="Your name" type="text">
+        <div class="mb-3 form-floating">
+            <input autocomplete="off" autofocus class="form-control" id="name" name="name" placeholder="Enter your name" type="text" pattern="[a-zA-Z]{2,}">
+            <label for="name">Your name</label>
         </div>
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Email" type="text">
+        <div class="mb-3 form-floating">
+            <input autocomplete="off" autofocus class="form-control" id="username" name="username" placeholder="Enter your email" type="email">
+            <label for="email">Your email (login)</label>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
+        <div class="mb-3 form-floating">
+            <input class="form-control" id="password" name="password" placeholder="Enter your password" type="password" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$">
+            <label for="password">Your password</label>
+            <div id="passwordHelp" class="form-text">Min. 8 chars including: upper- and lowercase, number and/or special char</div>
         </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Retype password" type="password">
+        <div class="mb-3 form-floating">
+            <input class="form-control" id="confirmation" name="confirmation" placeholder="Retype password" type="password">
+            <label for="confirmation">Retype your password</label>
         </div>
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
+</div>
 {% endblock %}
