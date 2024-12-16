@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}My Loans{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- tailwind css & inter font family -->
+        <link href="{% static 'css/output.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    </head>
+    <body>
+        <nav class="bg-gray-800">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 justify-between">
+                    <div class="flex">
+                        <div class="flex flex-shrink-0 items-center">
+                            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+                        </div>
+                        {% if user.is_authenticated %}
+                        <!-- main nav options -->
+                        <div class="md:ml-6 md:flex md:items-center md:space-x-4">
+                            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                            <a href="{% url 'loansapp:index' %}" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Dashboard</a>
+                            <a href="{% url 'loansapp:loan_list' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Loans</a>
+                            <a href="{% url 'loansapp:vendor_list' %}" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Vendors</a>
+                        </div>
+                        </div>
+                        <!-- login mngmt -->
+                        <div class="flex items-center">
+                            <span class=" text-white px-3.5">Hi <strong>{{ user.username }} </strong></span>
+                                <form action="{% url 'loansapp:logout' %}">
+                                    <button type="submit" class="relative inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                        <svg class=" h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 2a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-1.5 0v-7.5A.75.75 0 0 1 10 2ZM5.404 4.343a.75.75 0 0 1 0 1.06 6.5 6.5 0 1 0 9.192 0 .75.75 0 1 1 1.06-1.06 8 8 0 1 1-11.313 0 .75.75 0 0 1 1.06 0Z" />
+                                        </svg>                                          
+                                        Sign Out
+                                        </button>
+                                </form>
+                        </div>
+                        {% else %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {% include 'includes/messages.html' %}
+
+        <div class="container px-4 sm:px-6 lg:px-8">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+    </body>
+</html>

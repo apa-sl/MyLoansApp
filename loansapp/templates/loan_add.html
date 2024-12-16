@@ -1,0 +1,236 @@
+{% extends "layout.html" %}
+
+{% block body %}
+        {% include 'includes/header_page.html' with title="Add New Loan" %}
+                <form action="{% url 'loansapp:loan_add' %}" method="post">
+                        {% csrf_token %}
+                        {% if form_loan_new.non_field_errors %}
+                        <div class="text-red-600 text-sm mb-4">
+                                {{ form_loan_new.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        <div class="mx-auto max-w-lg">
+                            <div class="sm:flex sm:items-center">
+                                <div class="w-full px-4 sm:px-0">
+                                    <h2 class="text-base/7 font-semibold text-gray-900">Basic parameters - New Loan</h2>
+                                    <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">Most important data defining the loan.</p>
+                                </div>
+                                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-x-6 items-center justify-center">
+                                    <a class="text-sm/6 font-semibold text-gray-900" href="{% url 'loansapp:loan_list' %}">Cancel</a>
+                                    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-2">
+                                    <!-- Name Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.name.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.name.label }}
+                                            </label>
+                                            <!-- Input Field Wrapper -->
+                                            <div class="mt-2">
+                                                <input type="text" name="{{ form_loan_new.name.name }}" id="{{ form_loan_new.name.id_for_label }}" 
+                                                    value="{{ form_loan_new.name.value|default:'' }}"
+                                                    placeholder="{{ form_loan_new.name.field.widget.attrs.placeholder }}"
+                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6">
+                                                    {% if form_loan_new.name.errors %}
+                                                    <div class="text-red-600 text-sm mt-1">
+                                                        {{ form_loan_new.name.errors }}
+                                                    </div>
+                                                    {% endif %}
+                                            </div>
+                                    </div>
+            
+                                    <!-- Vendor Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.vendor.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.vendor.label }}
+                                        </label>
+                                    
+                                        <!-- Select Dropdown Wrapper -->
+                                        <div class="mt-2">
+                                            <select name="{{ form_loan_new.vendor.name }}"
+                                                    id="{{ form_loan_new.vendor.id_for_label }}"
+                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6">
+                                    
+                                                <!-- placeholder Option-->
+                                                <option value="" disabled {% if not form_loan_new.vendor.value %}selected{% endif %}>Please select</option>
+                                                <!-- Loop through vendor choices and preselect the current value -->
+                                                {% for vendor in form_loan_new.vendor.field.queryset %}
+                                                    <option value="{{ vendor.id }}"
+                                                            {% if form_loan_new.vendor.value == vendor.id|stringformat:"s" %}selected{% endif %}>
+                                                        {{ vendor.name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                            {% if form_loan_new.vendor.errors %}
+                                            <div class="text-red-600 text-sm mt-1">
+                                                {{ form_loan_new.vendor.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+            
+                                    <!-- Agreement ID Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.agreement_id.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.agreement_id.label }}
+                                        </label>
+                                        <!-- Input Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="text" name="{{ form_loan_new.agreement_id.name }}" id="{{ form_loan_new.agreement_id.id_for_label }}" 
+                                                        value="{{ form_loan_new.agreement_id.value|default:'' }}"
+                                                        placeholder="{{ form_loan_new.agreement_id.field.widget.attrs.placeholder }}"
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.agreement_id.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.agreement_id.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <!-- Amount Total Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.amount_total.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.amount_total.label }}
+                                        </label>
+                                        <!-- Amount Total Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="number" name="{{ form_loan_new.amount_total.name }}" id="{{ form_loan_new.amount_total.id_for_label }}" 
+                                                        value="{{ form_loan_new.amount_total.value }}"
+                                                        step="0.01"
+                                                        placeholder="{{ form_loan_new.amount_total.field.widget.attrs.placeholder }}"
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.amount_total.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.amount_total.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <!-- Amount Outstanding Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.amount_outstanding.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            Left to Pay
+                                        </label>
+                                        <!-- Amount Outstanding Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="text" name="{{ form_loan_new.amount_outstanding.name }}" id="{{ form_loan_new.amount_outstanding.id_for_label }}" 
+                                                        value="Will be calculated after loan creation"
+                                                        readonly
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-500 bg-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-0 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.amount_outstanding.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.amount_outstanding.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Min Installment Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.min_installment_amount.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.min_installment_amount.label }}
+                                        </label>
+                                        <!-- Amount Min installment Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="number" name="{{ form_loan_new.min_installment_amount.name }}" id="{{ form_loan_new.min_installment_amount.id_for_label }}" 
+                                                        value="{{ form_loan_new.min_installment_amount.value|default:'' }}"
+                                                        step="0.01"
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.min_installment_amount.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.min_installment_amount.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <!-- Status Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.status.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.status.label }}
+                                        </label>
+                                        <!-- Display the Selected Status as Plain Text -->
+                                        <div class="mt-2">
+                                                <input type="text"
+                                                        value="{{ loan.get_status_display|default:'Unpaid' }}"
+                                                        readonly
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-500 bg-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-0 sm:text-sm/6"
+                                                >
+                                        </div>
+                                    
+                                        <!-- Hidden Input for Submission -->
+                                        <input type="hidden" name="{{ form_loan_new.status.name }}" value="{{ form_loan_new.status.value|default:0 }}">
+                                        {% if form_loan_new.status.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.status.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <!-- First installment date Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.first_payment_date.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.first_payment_date.label }}
+                                        </label>
+                                        <!-- Input Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="date" name="{{ form_loan_new.first_payment_date.name }}" id="{{ form_loan_new.first_payment_date.id_for_label }}" 
+                                                        value="{{ form_loan_new.first_payment_date.value|default:'' }}"
+                                                        placeholder="{{ form_loan_new.first_payment_date.field.widget.attrs.placeholder }}"
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.first_payment_date.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.first_payment_date.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <!-- Last installment date Field -->
+                                    <div class="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                                        <!-- Label -->
+                                        <label for="{{ form_loan_new.last_payment_date.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                                            {{ form_loan_new.last_payment_date.label }}
+                                        </label>
+                                        <!-- Input Field Wrapper -->
+                                        <div class="mt-2">
+                                                <input type="date" name="{{ form_loan_new.last_payment_date.name }}" id="{{ form_loan_new.last_payment_date.id_for_label }}" 
+                                                        value="{{ form_loan_new.last_payment_date.value|default:'' }}"
+                                                        placeholder="{{ form_loan_new.last_payment_date.field.widget.attrs.placeholder }}"
+                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                                                >
+                                        </div>
+                                        {% if form_loan_new.last_payment_date.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {{ form_loan_new.last_payment_date.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </dl>
+                            </div>
+                            <div class="sm:hidden mt-6 flex items-center justify-center gap-x-6">
+                                <a class="text-sm/6 font-semibold text-gray-900" href="{% url 'loansapp:loan_list' %}">Cancel</a>
+                                <button type="submit" onclick="this.disabled=true; this.form.submit();" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+                            </div>
+                        </div>
+                    </form>
+
+        
+{% endblock %}

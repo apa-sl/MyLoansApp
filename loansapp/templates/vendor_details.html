@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    {% include 'includes/header_page.html' with title="Edit Vendor "|add:vendor.name %}
+        <!-- Add Vendor Form -->
+        <form method="post" action="{% url 'loansapp:vendor_update' vendor.id %}" class="sm:flex sm:flex-wrap items-end space-x-4">
+            {% csrf_token %}
+
+            <!-- Display any non-field errors -->
+            {% if form_vendor_edit.non_field_errors %}
+                <div class="text-red-600 text-sm">
+                    <!-- Non-field Errors -->
+                    {{ form_vendor_edit.non_field_errors }}
+                </div>
+            {% endif %}
+    
+            <!-- Name Field -->
+            <div class="mt-2">
+                <!-- Label -->
+                <label for="{{ form_vendor_edit.name.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+                    {{ form_vendor_edit.name.label }}
+                    </label>
+
+                <!-- Input Field Wrapper -->
+                <div class="mt-2">
+                    <input type="text" name="{{ form_vendor_edit.name.name }}" id="{{ form_vendor_edit.name.id_for_label }}" 
+                        placeholder="{{ form_vendor_edit.name.field.widget.attrs.placeholder }}"
+                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                        value="{{ form_vendor_edit.name.value|default:'' }}"
+                    >
+                </div>
+                {% if form_vendor_edit.name.errors %}
+                    <div class="text-red-600 text-sm mt-1">
+                        {% for error in form_vendor_edit.name.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-6 md:mt-0">
+                <button type="submit" onclick="this.disabled=true; this.form.submit();" class="rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Update Vendor</button>
+                <a class="text-sm/6 font-semibold text-gray-900" href="{% url 'loansapp:vendor_list' %}">Cancel</a>
+            </div>
+        </form>
+{% endblock %}

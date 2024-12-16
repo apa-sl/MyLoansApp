@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    {% include 'includes/header_page.html' with title="Your Dashboard" %}
+
+    <div>
+        <h2 class="my-4 text-base font-semibold text-gray-900">All loans</h2>
+        <dl class="mt-5 sm:ml-4 grid grid-cols-1 gap-5 sm:grid-cols-4">
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Total Loans</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_count }} ({{ myloans_amount|floatformat:2 }})</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Fully paid loans (amount)</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_paid_count }} ({{ myloans_paid_amount|floatformat:2 }})</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Paid partly loans (amount)</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_paid_partly_count }} ({{ myloans_paid_partly_amount|floatformat:2 }})</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Unpaid loans (amount)</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_unpaid_count }} ({{ myloans_unpaid_amount|floatformat:2 }})</dd>
+          </div>
+        </dl>
+    </div>
+
+      <div class="mt-8 border-t border-gray-300">
+        <h2 class="my-4 text-base font-semibold text-gray-900">This month ({{ myloans_currentmonth_name }})</h2>
+        <dl class="mt-5 sm:ml-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Loans this month</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_currentmonth_loans_count }}</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Amount still to be paid</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_currentmonth_installments_unpaid_amount|floatformat:2 }}</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Amount already paid</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_currentmonth_installments_paid_amount|floatformat:2 }}</dd>
+          </div>
+        </dl>
+        <div class=" my-4 sm:ml-4">
+            <a class=" block sm:inline rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" href="{% url 'loansapp:loan_list' %}?date_from={{ myloans_currentmonth_start|date:'Y-m-d' }}&date_to={{ myloans_currentmonth_end|date:'Y-m-d' }}">Show details</a>
+         </div>
+      </div>
+
+      <div class="mt-8  border-t border-gray-300">
+            <h2 class="my-4 text-base font-semibold text-gray-900">
+            Selected period   {% if myloans_selectedperiod_start|date:'Y F' == myloans_selectedperiod_end|date:'Y F' %}
+                                    {{ myloans_selectedperiod_start|date:'Y F' }}
+                              {% elif myloans_selectedperiod_start|date:'Y' == myloans_selectedperiod_end|date:'Y' %}
+                                    {{ myloans_selectedperiod_start|date:'Y F' }} - {{ myloans_selectedperiod_end|date:'F' }}
+                              {% else %}
+                                    {{ myloans_selectedperiod_start|date:'Y F' }} - {{ myloans_selectedperiod_end|date:'Y F' }}
+                              {% endif %}
+
+            </h2>
+        <div class="sm:ml-4">
+            {% include 'includes/filter_dates.html' %}
+            </div>
+        <dl class="mt-5 sm:ml-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Loans in selected period</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_selectedperiod_loans_count }}</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Amount still to be paid</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_selectedperiod_installments_unpaid_amount|floatformat:2 }}</dd>
+          </div>
+          <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Amount already paid</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ myloans_selectedperiod_installments_paid_amount|floatformat:2 }}</dd>
+          </div>
+        </dl>
+        <div class=" my-4 sm:ml-4">
+            <a class="block sm:inline rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  href="{% url 'loansapp:loan_list' %}?date_from={{ myloans_selectedperiod_start|date:'Y-m-d' }}&date_to={{ myloans_selectedperiod_end|date:'Y-m-d' }}"
+                  >Show details</a>
+         </div>
+    </div>
+
+    {% endblock %}

@@ -1,0 +1,188 @@
+{% extends "layout.html" %}
+
+{% load math_filters %}
+
+{% block body %}
+    {% include 'includes/header_page.html' with title="Loans" %}
+
+      
+
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="sm:flex sm:items-center">
+                <div class="flex flex-wrap sm:flex-auto space-y-2 sm:space-y-0  sm:space-x-4">
+                    <div class="flex-initial">
+                        {% include 'includes/filter_dates.html' %}
+                    </div>
+                    <div class="flex-initial">
+                    {% include 'includes/search_simple.html' %}
+                    </div>
+                    <div class="w-full sm:w-auto sm:flex-initial">
+                        <div class="block text-sm/6 font-medium text-gray-900">
+                            Payment status: 
+                        </div>
+                        <div class="flex mt-2 isolate w-full rounded-md shadow-sm">
+                            <a href="?filter_by=all{% for key, value in request.GET.items %}{% if key != 'filter_by' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}" 
+                            class="w-full inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 ml-1">
+                            All
+                            </a>
+                            <a href="?filter_by=unpaid{% for key, value in request.GET.items %}{% if key != 'filter_by' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}" 
+                            class="w-full inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+                            Unpaid
+                            </a>
+                            <a href="?filter_by=paid{% for key, value in request.GET.items %}{% if key != 'filter_by' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}" 
+                            class="w-full inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 mr-1">
+                            Paid
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                <a href="{% url 'loansapp:loan_add' %}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Add new loan</a>
+            </div>
+        </div>
+        <div class="mt-8 flow-root">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Loan Name
+                                        <a class="group" href="?sort_by=name&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=name&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Vendor
+                                        <a class="group" href="#" >
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=vendor&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Status
+                                        <a class="group" href="?sort_by=status&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=status&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Total Amount
+                                        <a class="group" href="?sort_by=amount_total&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=amount_total&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    % Paid
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Amount Left
+                                        <a class="group" href="?sort_by=amount_outstanding&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=amount_outstanding&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        First Payment 
+                                        <a class="group" href="?sort_by=first_payment_date&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=first_payment_date&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    <div class="inline-flex items-center">
+                                        Last Payment Date
+                                        <a class="group" href="?sort_by=last_payment_date&sort_order=asc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a class="group" href="?sort_by=last_payment_date&sort_order=desc{% for key, value in request.GET.items %}{% if key not in exclude_params %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">
+                                            <svg class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
+                                    <span class="sr-only">Edit</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            {% for loan in page_obj %}
+                            <tr class="even:bg-gray-50">
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm font-medium text-gray-900 sm:pl-3"><a href="{% url 'loansapp:loan_details' loan.id %}">{{ loan.name }}</a></td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.vendor }}</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.get_status_display }}</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.amount_total }}</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.amount_total|subtract:loan.amount_outstanding|divide:loan.amount_total|times:100|floatformat:2 }}%</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.amount_outstanding }}</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.first_payment_date|date:"Y-m-d" }}</td>
+                                <td class="whitespace-nowrap px-3 py-3.5 text-sm text-gray-500">{{ loan.last_payment_date|date:"Y-m-d" }}</td>
+                                <td class="relative whitespace-nowrap px-3 py-3.5 text-right text-sm font-medium sm:pr-3">
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                                No loans found with given search/sort/filter criteria
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'includes/paginator.html' %}
+{% endblock %}

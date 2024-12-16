@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div>
+    {% include 'includes/header_page.html' with title="Register" %}
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+    <div>
+        <form action="{% url 'loansapp:register' %}" method="post">
+            {% csrf_token %}
+            <div>
+                <input class="" autofocus type="text" name="username" placeholder="Username">
+            </div>
+            <div>
+                <input class="" type="email" name="email" placeholder="Email Address">
+            </div>
+            <div>
+                <input class="" type="password" name="password" placeholder="Password">
+            </div>
+            <div>
+                <input class="" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <input class="" type="submit" value="Register">
+        </form>
+
+        Already have an account? <a href="{% url 'loansapp:login' %}">Log In here.</a>
+    </div>
+
+</div>
+{% endblock %}
