@@ -63,12 +63,6 @@ Track all personal loans repayments including:
 - tailwind.config.js - Tailwind CSS configuration file (e.g. location of html files, forms plugin)
 - utils.py - 3 functions reaused within the views functions.
 
-- All standard elements (including views.py, urls.py, models.py)
-- Templates folder - all Django templates used in the project with includes subfolder that holds all templates shared in multiple places (quasi components)
-- utils.py with a few functions reused in multiple view functions.
-- forms.py hold all class based forms. Due to Tailwind CSS usage custom forms that uses data & logic of class forms have been created in the template files.
-- tailwind related files
-
 # How to run the application
 
 1. Clone this repository.
